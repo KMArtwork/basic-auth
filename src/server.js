@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const base64 = require('base-64');
 const cors = require('cors');
 
+// Allows us to 'talk' to other websites
 app.use(cors());
 
 // Process JSON input and put the data on req.body
@@ -72,11 +73,7 @@ app.post('/signin', async (req, res) => {
   module.exports = {
     app,
     // make sure our tables are created, start up the HTTP server.
-    start: sequelize.sync()
-    .then(() => {
-      app.listen(3001, () => console.log('server up'));
-    }).catch(e => {
-      console.error('Could not start server', e.message);
-    }),
-
+    start: (PORT) => app.listen(PORT, () => {
+      console.log(`Server listening on ${PORT}`)
+    })
   }
