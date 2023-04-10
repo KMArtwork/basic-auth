@@ -1,5 +1,7 @@
 'use strict'
 
+const bcrypt = require('bcrypt');
+
 // require Sequelize library. Destructure it to separate the actual 'Sequelize' ORM and the DataTypes necessary for creating DB models/schema
 const { Sequelize } = require('sequelize');
 
@@ -14,6 +16,10 @@ const sequelize = new Sequelize(DATABASE_URL);
 
 // pass instantiated sequelize ORM to the db models so that sequelize knows how to define each model/table
 const usersModel = users(sequelize);
+
+usersModel.beforeCreate(async user => {
+  user.password = await bcrypt.hash(user.password, 10);
+})
 
 module.exports = {
   sequelize,

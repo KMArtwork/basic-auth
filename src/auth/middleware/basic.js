@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const { usersModel } = require('../models/index')
 
 const basicAuth = async (request, response, next) => {
+  console.log('basic auth hit');
   // check to see if headers has authorization
   if (!request.headers.authorization) {
   // if no headers.authorization, send 401 error    
@@ -32,14 +33,15 @@ const basicAuth = async (request, response, next) => {
 
     if (isAuthenticated) {
     // if passwords match, invoke next()
-      next();
+      request.user = foundUser;
+      next()
     }
     else {
-      throw new Error('Invalid Username or Password')
+      next(error)
     }
   } 
   catch (error) {
-    response.status(403).send('Invalid Username or Password')
+    next(error)
   }
 
 }
