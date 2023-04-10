@@ -23,25 +23,25 @@ const basicAuth = async (request, response, next) => {
   // split decoded credentials on ':', everything to the left of the ':' is the username and everything to the right is the password
   let [decodedUserName, decodedPassword] = decodedCredentials.split(':');
 
-  // query the database, find if database username === username from request
-  let foundUser = await usersModel.findOne({where: {username: decodedUserName}})
 
-  // if it does not exist, send an error
-  if (!foundUser) {
-    response.status(401).send('Invalid Username or Password');
-    return;
+  try {
+    // query the database, find if database username === username from request
+    let foundUser = await usersModel.findOne({where: {username: decodedUserName}});
+    // if a username is found, compare saved password to password from request
+    let isAuthenticated = await bcrypt.compare(decodedPassword, foundUser.password);
+
+    if (isAuthenticated) {
+    // if passwords match, invoke next()
+      next();
+    }
+    else {
+      throw new Error('Invalid Username or Password')
+    }
+  } 
+  catch (error) {
+    response.status(403).send('Invalid Username or Password')
   }
 
-  // if it DOES exist, compare the DB user's saved password to the password from the request
-  let isAuthenticated = await bcrypt.compare(decodedPassword, foundUser.password);
-  if (isAuthenticated){
-  // if they DO match, call next() to exit the middleware and move on to the next part of the server    
-    next()
-  }
-  // if they don't match, send an error
-  else {
-    response.status(401).send('Invalid Username or Password')
-  }
 }
 
 module.exports = basicAuth;
