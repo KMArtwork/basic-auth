@@ -17,9 +17,9 @@ const sequelize = new Sequelize(DATABASE_URL);
 // pass instantiated sequelize ORM to the db models so that sequelize knows how to define each model/table
 const usersModel = users(sequelize);
 
-usersModel.beforeCreate(async user => {
-  user.password = await bcrypt.hash(user.password, 10);
-})
+// usersModel.beforeCreate(async user => {
+//   user.password = await bcrypt.hash(user.password, 10);
+// })
 
 module.exports = {
   sequelize,

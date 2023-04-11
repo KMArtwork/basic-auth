@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const { usersModel } = require('../models/index')
 
 const basicAuth = async (request, response, next) => {
-  console.log('basic auth hit');
   // check to see if headers has authorization
   if (!request.headers.authorization) {
   // if no headers.authorization, send 401 error    
@@ -20,25 +19,12 @@ const basicAuth = async (request, response, next) => {
 
   // decode the username:password
   let decodedCredentials = base64.decode(encodedAuthorizationCredentials);
-
   // split decoded credentials on ':', everything to the left of the ':' is the username and everything to the right is the password
   let [decodedUserName, decodedPassword] = decodedCredentials.split(':');
 
-
   try {
-    // query the database, find if database username === username from request
-    let foundUser = await usersModel.findOne({where: {username: decodedUserName}});
-    // if a username is found, compare saved password to password from request
-    let isAuthenticated = await bcrypt.compare(decodedPassword, foundUser.password);
-
-    if (isAuthenticated) {
-    // if passwords match, invoke next()
-      request.user = foundUser;
-      next()
-    }
-    else {
-      next(error)
-    }
+    request.user = await usersModel.authenticateUser(decodedUserName, decodedPassword);
+    next();
   } 
   catch (error) {
     next(error)
